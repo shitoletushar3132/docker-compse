@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: backend
+    env: docker
+    image: shitoletushar3132/shorturl-backend
+    plan: starter
+    numInstances: 3
+    autoDeploy: true
+    ports:
+      - 3000
+    dependsOn:
+      - redis
+
+  - type: web
+    name: nginx
+    env: docker
+    image: nginx:latest
+    plan: starter
+    autoDeploy: true
+    ports:
+      - 80
+    dependsOn:
+      - backend
+    dockerCommand: |
+      cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf && nginx -g 'daemon off;'
+    envVars:
+      - key: NGINX_CONF
+        value: /etc/nginx/nginx.conf
+    volumes:
+      - path: ./nginx.conf
+        mountPath: /etc/nginx/nginx.conf
+
+  - type: redis
+    name: redis
+    plan: starter
